@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Result</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        .result-box {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            margin-top: 20px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 15px;
+            background: #7e0606;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            background: #9f0202;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Website Scan Result</h2>
+        
+        <p><strong>Scanned URL:</strong> {{ url }}</p>
+
+        <div class="result-box">
+            <h3>Extracted Features</h3>
+            <ul>
+                {% for category, values in features.items() %}
+                    <li><strong>{{ category.replace("_", " ").title() }}</strong>:</li>
+                    <ul>
+                        {% for key, value in values.items() %}
+                            <li><strong>{{ key.replace("_", " ").title() }}</strong>: {{ value }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <a href="/" class="btn">Scan Another URL</a>
+    </div>
+
+</body>
+</html>

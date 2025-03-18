@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Scanner</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .logo {
+            display: block;
+            margin: 20px auto;
+            width: 150px; /* Adjust width as needed */
+        }
+
+        .middle-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 60vh; /* Centers the form vertically */
+        }
+
+        input {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: rgb(95, 93, 93);
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: rgba(169, 163, 163, 0.71);
+        }
+
+        #result {
+            text-align: left;
+            margin: 20px auto;
+            width: 50%;
+            background: #858585;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Logo at the top -->
+    <img src="logo.png" alt="Website Scanner Logo" class="logo">
+
+    <!-- Middle content -->
+    <div class="middle-container">
+        <h2>Enter a URL to Scan</h2>
+        <input type="text" id="urlInput" placeholder="Enter URL"><br>
+        <button onclick="scanWebsite()">Scan</button>
+    </div>
+
+    <h3>Result:</h3>
+    <pre id="result"></pre>
+
+    <script>
+        function scanWebsite() {
+            const url = document.getElementById("urlInput").value;
+
+            if (!url) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            fetch('/index', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+    </script>
+
+</body>
+</html>
