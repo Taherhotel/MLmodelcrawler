@@ -6,7 +6,7 @@
     font-family: "Times New Roman", serif;
 }
 
-/* Keep Background as it is */
+/* Body and Background */
 body {
     font-family: "Times New Roman", serif;
     text-align: center;
@@ -43,8 +43,54 @@ body::before {
 
 /* Logo */
 .logo img {
-    width: 350px;
+    width: 200px;
+    height: auto;
     animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Middle Container */
+.middle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh; /* Centers vertically */
+}
+
+/* Input Field */
+input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+}
+
+/* Button Container */
+.button-container {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    justify-content: center;
+}
+
+/* Buttons */
+.button-container button, .search-box button {
+    padding: 12px 20px;
+    cursor: pointer;
+    background-color: #830707;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.button-container button:hover, .search-box button:hover {
+    background-color: #ff0000;
+    transform: scale(1.1);
 }
 
 /* Quote */
@@ -65,25 +111,11 @@ body::before {
     background: black;
     padding: 20px;
     border-radius: 20px;
-    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3), /* Soft red glow */
-                0 0 20px rgba(255, 0, 0, 0.2), 
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3),
+                0 0 20px rgba(255, 0, 0, 0.2),
                 0 0 30px rgba(255, 0, 0, 0.1);
     color: white;
     animation: fadeIn 1.5s ease-in-out, neonGlow 1.5s infinite alternate ease-in-out;
-}
-
-/* Subtle Neon Glow Animation */
-@keyframes neonGlow {
-    0% {
-        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3), 
-                    0 0 20px rgba(255, 0, 0, 0.2), 
-                    0 0 30px rgba(255, 0, 0, 0.1);
-    }
-    100% {
-        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5), 
-                    0 0 25px rgba(255, 0, 0, 0.3), 
-                    0 0 35px rgba(255, 0, 0, 0.2);
-    }
 }
 
 /* Search Box */
@@ -113,37 +145,6 @@ body::before {
     background: rgb(120, 120, 120);
 }
 
-/* Scan Button */
-.search-box button {
-    display: block;
-    margin: 10px auto;
-    padding: 12px 20px;
-    cursor: pointer;
-    background-color: #830707;
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out;
-}
-
-.search-box button:hover {
-    background-color: #ff0000;
-    transform: scale(1.1);
-}
-
-/* Input Field */
-.search-box input {
-    width: 80%;
-    padding: 12px;
-    margin: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    font-size: 16px;
-    color: white;
-    background-color: black;
-}
-
 /* Disclaimer */
 .disclaimer {
     font-size: 14px;
@@ -171,12 +172,8 @@ body::before {
 }
 
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes slideIn {
@@ -187,5 +184,19 @@ body::before {
     to {
         transform: translateY(0);
         opacity: 1;
+    }
+}
+
+/* Subtle Neon Glow Animation */
+@keyframes neonGlow {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3),
+                    0 0 20px rgba(255, 0, 0, 0.2),
+                    0 0 30px rgba(255, 0, 0, 0.1);
+    }
+    100% {
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5),
+                    0 0 25px rgba(255, 0, 0, 0.3),
+                    0 0 35px rgba(255, 0, 0, 0.2);
     }
 }
