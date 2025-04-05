@@ -1,0 +1,202 @@
+/* Global Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Times New Roman", serif;
+}
+
+/* Body and Background */
+body {
+    font-family: "Times New Roman", serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    background-color: black;
+    font-size: 18px;
+    color: white;
+    position: relative;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: url('image.png') no-repeat center center fixed;
+    background-size: cover;
+    opacity: 0.23; /* Correct Opacity */
+    z-index: -1;
+}
+
+/* Container */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    color: white;
+    border-radius: 10px;
+}
+
+/* Logo */
+.logo img {
+    width: 200px;
+    height: auto;
+    animation: fadeIn 1.5s ease-in-out;
+}
+
+/* Middle Container */
+.middle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 60vh; /* Centers vertically */
+}
+
+/* Input Field */
+input {
+    width: 300px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: black;
+    color: white;
+}
+
+/* Button Container */
+.button-container {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    justify-content: center;
+}
+
+/* Buttons */
+.button-container button, .search-box button {
+    padding: 12px 20px;
+    cursor: pointer;
+    background-color: #830707;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out;
+}
+
+.button-container button:hover, .search-box button:hover {
+    background-color: #ff0000;
+    transform: scale(1.1);
+}
+
+/* Quote */
+.quote {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    margin: 10px 0;
+    color: white;
+    animation: slideIn 1s ease-out;
+}
+
+/* Main Content Box with Red Neon Glow */
+.main-content {
+    display: flex;
+    width: 75%;
+    margin-top: 20px;
+    background: black;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.3),
+                0 0 20px rgba(255, 0, 0, 0.2),
+                0 0 30px rgba(255, 0, 0, 0.1);
+    color: white;
+    animation: fadeIn 1.5s ease-in-out, neonGlow 1.5s infinite alternate ease-in-out;
+}
+
+/* Search Box */
+.search-box {
+    width: 75%;
+    text-align: center;
+    background: rgb(99, 99, 99);
+    border-radius: 20px;
+    padding: 15px;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Real-Time Updates */
+.real-time-updates {
+    width: 35%;
+    text-align: center;
+    background: rgb(99, 99, 99);
+    border-radius: 20px;
+    padding: 15px;
+    border-left: 2px solid #000000;
+    padding-left: 20px;
+    transition: background 0.3s ease-in-out;
+}
+
+/* Hover Effect */
+.search-box:hover, .real-time-updates:hover {
+    background: rgb(120, 120, 120);
+}
+
+/* Disclaimer */
+.disclaimer {
+    font-size: 14px;
+    color: rgb(255, 0, 0);
+}
+
+/* Phishing Status Colors */
+.safe {
+    color: green;
+}
+
+.suspicious {
+    color: orange;
+}
+
+.phishing {
+    color: red;
+    font-weight: bold;
+}
+
+/* Animations */
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Subtle Neon Glow Animation */
+@keyframes neonGlow {
+    0% {
+        box-shadow: 0 0 10px rgba(255, 0, 0, 0.3),
+                    0 0 20px rgba(255, 0, 0, 0.2),
+                    0 0 30px rgba(255, 0, 0, 0.1);
+    }
+    100% {
+        box-shadow: 0 0 15px rgba(255, 0, 0, 0.5),
+                    0 0 25px rgba(255, 0, 0, 0.3),
+                    0 0 35px rgba(255, 0, 0, 0.2);
+    }
+}
