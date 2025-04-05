@@ -3,41 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phish X Crawler</title>
-
-    <!-- Favicon -->
-    <link rel="icon" href="favicon.png" type="image/x-icon">
-    
-    <!-- Google Font -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
-    
-    <!-- External CSS -->
-    <link rel="stylesheet" href="styles.css">
-    
-    <!-- External JavaScript -->
-    <script src="script.js" defer></script>
+    <title>Website Scanner</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <img src="logo.png" alt="Site Logo">
-        </div>
-        <div class="quote">Phishing is a trap. We help you see the hook.</div>
-        
-        <div class="main-content">
-            <div class="search-box">
-                <h3>Enter a Bank Website URL:</h3>
-                <input type="text" id="url-input" placeholder="Enter website URL">
-                <button onclick="scanWebsite()">Scan</button>
-                <p class="disclaimer">This currently only detects banking phishing websites.</p>
-            </div>
-            
-            <div class="real-time-updates">
-                <h3>Real-Time Updates</h3>
-                <p id="scan-status">Waiting for Input</p>
-                <p id="scan-result"></p>
-            </div>
+
+    <!-- Logo at the top -->
+    <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Website Scanner Logo" class="logo" style="width: 150px; height: auto;">
+
+    <!-- Middle content -->
+    <div class="middle-container">
+        <h2>Enter a URL to Scan</h2>
+        <input type="text" id="urlInput" placeholder="Enter URL"><br>
+
+        <div class="button-container">
+            <button onclick="scanWebsite()">Scan</button>
+            <button onclick="fetchData()">View Recent Scans</button>
+            <button onclick="downloadReport()">Download Report</button>
         </div>
     </div>
+
+    <h3>Result:</h3>
+    <pre id="result"></pre>
+
+    <script>
+        function scanWebsite() {
+            const url = document.getElementById("urlInput").value;
+
+            if (!url) {
+                alert("Please enter a URL");
+                return;
+            }
+
+            fetch('/index', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        function fetchData() {
+            fetch('/get_data')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+            })
+            .catch(error => console.error('Error:', error));
+        }
+        function downloadReport() {
+            const url = document.getElementById('urlInput').value.trim();  // ✨ Added trim()
+
+            if (!url) {
+                alert('Please enter a URL first.');
+                return;
+            }
+
+            fetch('http://127.0.0.1:5000/download_report', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: url })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Server error or invalid response.');
+                }
+                return response.blob();
+            })
+            .then(blob => {
+                const link = document.createElement('a');
+                const blobUrl = window.URL.createObjectURL(blob);
+                link.href = blobUrl;
+                link.download = "url_report.pdf";
+
+                document.body.appendChild(link);  // ✨ Important for Firefox
+                link.click();
+                document.body.removeChild(link);  // ✨ Clean up after download
+                window.URL.revokeObjectURL(blobUrl);  // ✨ Free memory
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to generate report.');
+            });
+        }
+
+
+    </script>
+
 </body>
 </html>
