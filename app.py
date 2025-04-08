@@ -9,7 +9,13 @@ from features_extract import (
     extract_content_features,
     extract_domain_features,
     extract_redirection_count,
-    get_certificate_info
+    get_certificate_info,
+    get_domain_age,
+    get_dns_record_count,
+    check_spf_dmarc,
+    is_shortened_url,
+    analyze_url,
+    calculate_risk_score
 )
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -50,7 +56,13 @@ def index():
             "content_features": extract_content_features(url),
             "domain_features": extract_domain_features(url),
             "redirection_count": extract_redirection_count(url),
-            "certificate_info": get_certificate_info(url)
+            "certificate_info": get_certificate_info(url),
+            "domain_age":get_domain_age(url),
+            "dns_record_count":get_dns_record_count(url),
+            "check_spf_dmarc":check_spf_dmarc(url),
+            "is_shortened_url":is_shortened_url(url),
+            "calculated_risk_score":calculate_risk_score(analyze_url(url))
+            
         }
 
         return jsonify({"url": url, "features": features})
@@ -66,7 +78,7 @@ def get_data():
         cursor = conn.cursor(dictionary=True)
 
         cursor.execute("""
-            SELECT url, title, is_phishing FROM bank_website201
+            SELECT url, title, is_phishing FROM bank_website
             ORDER BY id DESC LIMIT 50
         """)
         records = cursor.fetchall()
@@ -108,7 +120,12 @@ def download_report():
             "content_features": extract_content_features(url),
             "domain_features": extract_domain_features(url),
             "redirection_count": extract_redirection_count(url),
-            "certificate_info": get_certificate_info(url)
+            "certificate_info": get_certificate_info(url),
+            "domain_age":get_domain_age(url),
+            "dns_record_count":get_dns_record_count(url),
+            "check_spf_dmarc":check_spf_dmarc(url),
+            "is_shortened_url":is_shortened_url(url),
+            "calculated_risk_score":calculate_risk_score(analyze_url(url))
         }
 
         # Create PDF
