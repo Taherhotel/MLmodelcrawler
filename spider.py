@@ -2,22 +2,19 @@ import scrapy
 from scrapy_playwright.page import PageMethod
 import hashlib
 from urllib.parse import urlparse, urlunparse
-import asyncio
 import random
-from pymongo import MongoClient
-from myscrappy.features import extract_features
+import asyncio
 
 class BankSpider(scrapy.Spider):
     name = 'bank_spider'
     
-    # ✅ Load all Indian bank domains from a file
     with open('indian_banks.txt') as f:
         allowed_domains = [line.strip() for line in f if line.strip()]
 
     start_urls = [f"https://{domain}" for domain in allowed_domains]
     random.shuffle(start_urls)
     visited_urls = set()
-    max_pages = 5  
+    max_pages = 15  
     max_depth = 3
 
     phishing_keywords = [
@@ -26,11 +23,6 @@ class BankSpider(scrapy.Spider):
         "confirm bank details", "login issue", "reset your password",
         "security check", "account suspended", "click here to verify"
     ]
-
-    # ✅ MongoDB Connection
-    client = MongoClient('mongodb://localhost:27018/')
-    db = client['phishing_data']
-    collection = db['scraped_sites']
 
     def start_requests(self):
         for url in self.start_urls:
@@ -71,23 +63,17 @@ class BankSpider(scrapy.Spider):
 
             title = response.css('title::text').get() or "No Title"
             content = response.body.decode('utf-8', errors='ignore')
-
             is_phishing = self.check_phishing(content)
 
-            # ✅ Insert into MongoDB
-            self.collection.update_one(
-                {'hash': url_hash},
-                {'$set': {
-                    'url': normalized_url,
-                    'title': title,
-                    'html': content,
-                    'content': content,
-                    'is_phishing': is_phishing
-                }},
-                upsert=True
-            )
-
-            self.logger.info(f"✅ Saved: {normalized_url} | Status: {is_phishing}")
+            # ✅ Yield item to pipeline
+            yield {
+                'url': normalized_url,
+                'title': title,
+                'html': content,
+                'content': content,
+                'hash': url_hash,
+                'is_phishing': is_phishing
+            }
 
         if len(self.visited_urls) < self.max_pages:
             current_depth = response.meta.get('depth', 0)
@@ -99,23 +85,21 @@ class BankSpider(scrapy.Spider):
 
                     if normalized_link.startswith(('http')) and normalized_link not in self.visited_urls:
                         domain = urlparse(normalized_link).netloc
-                    if domain in self.allowed_domains:
-                        self.logger.info(f"⏳ Waiting 5 seconds before crawling: {normalized_link}")
+                        if domain in self.allowed_domains:
+                            self.logger.info(f"⏳ Waiting 5 seconds before crawling: {normalized_link}")
 
-            await asyncio.sleep(15)
+                            await asyncio.sleep(5)
 
-            yield scrapy.Request(
-                normalized_link,
-                callback=self.parse,
-                meta={
-                    'playwright': True,
-                    'depth': response.meta.get('depth', 0) + 1,
-                    'playwright_page_methods': [
-                        PageMethod('wait_for_load_state', 'domcontentloaded'),
-                        PageMethod('evaluate', 'window.scrollTo(0, document.body.scrollHeight)'),
-                        PageMethod('wait_for_timeout', 2000)
-                    ]
-                }
-            )
-    def closed(self, reason):
-        self.client.close()  # ✅ Close MongoDB connection properly
+                            yield scrapy.Request(
+                                normalized_link,
+                                callback=self.parse,
+                                meta={
+                                    'playwright': True,
+                                    'depth': current_depth + 1,
+                                    'playwright_page_methods': [
+                                        PageMethod('wait_for_load_state', 'domcontentloaded'),
+                                        PageMethod('evaluate', 'window.scrollTo(0, document.body.scrollHeight)'),
+                                        PageMethod('wait_for_timeout', 2000)
+                                    ]
+                                }
+                            )
