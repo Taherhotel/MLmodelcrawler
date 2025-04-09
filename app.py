@@ -15,7 +15,9 @@ from features_extract import (
     check_spf_dmarc,
     is_shortened_url,
     analyze_url,
-    calculate_risk_score
+    calculate_risk_score,
+    check_url_virustotal,
+    check_google_safe_browsing
 )
 
 app = Flask(__name__, static_folder='static', template_folder='templates')
@@ -49,6 +51,7 @@ def index():
         if not url:
             return jsonify({"error": "URL is missing."}), 400
 
+
         # Extract features
         features = {
             "url_features": extract_url_features(url),
@@ -61,11 +64,20 @@ def index():
             "dns_record_count":get_dns_record_count(url),
             "check_spf_dmarc":check_spf_dmarc(url),
             "is_shortened_url":is_shortened_url(url),
-            "calculated_risk_score":calculate_risk_score(analyze_url(url))
+            'virus_total': check_url_virustotal(url),
+            'google_safe_browsing': check_google_safe_browsing(url)      
+            #"calculated_risk_score":calculate_risk_score(analyze_url(url))
             
         }
-
-        return jsonify({"url": url, "features": features})
+                # Calculate risk score
+        risk_score = calculate_risk_score(analyze_url(url))
+ 
+        return jsonify({"url": url, "features": features,'risk_score': risk_score,
+                        'verdict': (
+                "Highly suspicious ⚠" if risk_score >= 70 else
+                "Moderately suspicious ⚠" if risk_score >= 40 else
+                "Likely safe ✅ (Still verify manually)"
+            )})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -121,12 +133,22 @@ def download_report():
             "domain_features": extract_domain_features(url),
             "redirection_count": extract_redirection_count(url),
             "certificate_info": get_certificate_info(url),
-            "domain_age":get_domain_age(url),
-            "dns_record_count":get_dns_record_count(url),
-            "check_spf_dmarc":check_spf_dmarc(url),
-            "is_shortened_url":is_shortened_url(url),
-            "calculated_risk_score":calculate_risk_score(analyze_url(url))
+            "domain_age": get_domain_age(url),
+            "dns_record_count": get_dns_record_count(url),
+            "check_spf_dmarc": check_spf_dmarc(url),
+            "is_shortened_url": is_shortened_url(url),
+            "virus_total": check_url_virustotal(url),
+            "google_safe_browsing": check_google_safe_browsing(url)
         }
+
+        # Calculate Risk Score
+        risk_score = calculate_risk_score(analyze_url(url))  # Assuming this returns 0-100
+        if risk_score >= 70:
+            risk_level = "Highly Risky"
+        elif risk_score >= 40:
+            risk_level = "Suspicious"
+        else:
+            risk_level = "Safe"
 
         # Create PDF
         pdf = FPDF()
@@ -134,6 +156,14 @@ def download_report():
         pdf.set_font("Arial", size=12)
 
         pdf.cell(0, 10, txt=f"Report for URL: {url}", ln=True, align="C")
+        pdf.ln(10)
+
+        # Add Risk Score and Risk Level
+        pdf.set_font("Arial", 'B', 12)
+        pdf.cell(0, 10, "Risk Analysis", ln=True)
+        pdf.set_font("Arial", size=11)
+        pdf.cell(0, 8, f"Risk Score: {risk_score}%", ln=True)
+        pdf.cell(0, 8, f"Risk Level: {risk_level}", ln=True)
         pdf.ln(10)
 
         for category, details in features.items():
@@ -147,7 +177,7 @@ def download_report():
                 pdf.multi_cell(0, 8, str(details))
             pdf.ln(5)
 
-        # Corrected part
+        # Output to BytesIO
         pdf_bytes = pdf.output(dest='S').encode('latin1')
         pdf_buffer = io.BytesIO(pdf_bytes)
         pdf_buffer.seek(0)
@@ -161,6 +191,7 @@ def download_report():
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
     
 if __name__ == '__main__':
     app.run(debug=True)
