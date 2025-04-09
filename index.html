@@ -1,102 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Website Scanner</title>
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Website Scanner</title>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
+  <style>
+    .navbar {
+      border-bottom: 1px solid #ccc;
+      background-color: #ff00004d;
+    }
+    .navbar button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
+      font-size: 17px;
+    }
+    .navbar button:hover {
+      background-color: #ddd;
+    }
+    .navbar button.active {
+      background-color: #830707;
+    }
+    .tabcontent {
+      display: none;
+      padding: 20px;
+      
+      border-top: none;
+    }
+  </style>
 </head>
+
 <body>
+
+  <!-- Tabs at the top -->
+  <div class="tab">
+    <button class="tablinks" onclick="openTab(event, 'Scanner')" id="defaultOpen">Website Scanner</button>
+    <button class="tablinks" onclick="openTab(event, 'Dashboard')">Dashboard</button>
+  </div>
+
+  <!-- Scanner Tab Content -->
+  <div id="Scanner" class="tabcontent">
 
     <!-- Logo at the top -->
     <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Website Scanner Logo" class="logo" style="width: 150px; height: auto;">
 
     <!-- Middle content -->
     <div class="middle-container">
-        <h2>Enter a URL to Scan</h2>
-        <input type="text" id="urlInput" placeholder="Enter URL"><br>
+      <h2>Enter a URL to Scan</h2>
+      <input type="text" id="urlInput" placeholder="Enter URL"><br>
 
-        <div class="button-container">
-            <button onclick="scanWebsite()">Scan</button>
-            <button onclick="fetchData()">View Recent Scans</button>
-            <button onclick="downloadReport()">Download Report</button>
-        </div>
+      <div class="button-container">
+        <button onclick="scanWebsite()">Scan</button>
+        <button onclick="fetchData()">View Recent Scans</button>
+        <button onclick="downloadReport()">Download Report</button>
+      </div>
     </div>
 
     <h3>Result:</h3>
     <pre id="result"></pre>
 
-    <script>
-        function scanWebsite() {
-            const url = document.getElementById("urlInput").value;
+  </div>
 
-            if (!url) {
-                alert("Please enter a URL");
-                return;
-            }
+  <!-- Dashboard Tab Content -->
+  <div id="Dashboard" class="tabcontent">
+    <iframe src="{{ url_for('static', filename='dashboard.html') }}" 
+            style="width: 100%; height: 90vh; border: none;"></iframe>
+  </div>
 
-            fetch('/index', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ url: url })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-            })
-            .catch(error => console.error('Error:', error));
+  <!-- JavaScript for Tabs and other functionality -->
+  <script>
+    // Handle tabs
+    function openTab(evt, tabName) {
+      var i, tabcontent, tablinks;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace(" active", "");
+      }
+      document.getElementById(tabName).style.display = "block";
+      evt.currentTarget.className += " active";
+    }
+
+    document.getElementById("defaultOpen").click(); // Auto-click default tab (Website Scanner)
+
+    // Website Scanner functions
+    function scanWebsite() {
+      const url = document.getElementById("urlInput").value;
+
+      if (!url) {
+        alert("Please enter a URL");
+        return;
+      }
+
+      fetch('/index', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url })
+      })
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    function fetchData() {
+      fetch('/get_data')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("result").textContent = JSON.stringify(data, null, 2);
+      })
+      .catch(error => console.error('Error:', error));
+    }
+
+    function downloadReport() {
+      const url = document.getElementById('urlInput').value.trim();
+
+      if (!url) {
+        alert('Please enter a URL first.');
+        return;
+      }
+
+      fetch('http://127.0.0.1:5000/download_report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url })
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Server error or invalid response.');
         }
+        return response.blob();
+      })
+      .then(blob => {
+        const link = document.createElement('a');
+        const blobUrl = window.URL.createObjectURL(blob);
+        link.href = blobUrl;
+        link.download = "url_report.pdf";
 
-        function fetchData() {
-            fetch('/get_data')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById("result").textContent = JSON.stringify(data, null, 2);
-            })
-            .catch(error => console.error('Error:', error));
-        }
-        function downloadReport() {
-            const url = document.getElementById('urlInput').value.trim();  // ✨ Added trim()
-
-            if (!url) {
-                alert('Please enter a URL first.');
-                return;
-            }
-
-            fetch('http://127.0.0.1:5000/download_report', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ url: url })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Server error or invalid response.');
-                }
-                return response.blob();
-            })
-            .then(blob => {
-                const link = document.createElement('a');
-                const blobUrl = window.URL.createObjectURL(blob);
-                link.href = blobUrl;
-                link.download = "url_report.pdf";
-
-                document.body.appendChild(link);  // ✨ Important for Firefox
-                link.click();
-                document.body.removeChild(link);  // ✨ Clean up after download
-                window.URL.revokeObjectURL(blobUrl);  // ✨ Free memory
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Failed to generate report.');
-            });
-        }
-
-
-    </script>
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to generate report.');
+      });
+    }
+  </script>
 
 </body>
 </html>
