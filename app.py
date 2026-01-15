@@ -23,14 +23,7 @@ from features_extract import (
 app = Flask(__name__, static_folder='static', template_folder='templates')
 
 # Database connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Door#@mirror555",
-        database="scrapy_db",
-        charset="utf8mb4"
-    )
+
 
 # Utility to clean text
 def clean_text(text):
@@ -195,3 +188,4 @@ def download_report():
     
 if __name__ == '__main__':
     app.run(debug=True)
+
