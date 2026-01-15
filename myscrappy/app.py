@@ -6,14 +6,7 @@ from features_extract import extract_url_features, extract_keyword_features, ext
 app = Flask(__name__)
 
 # Database connection
-def get_db_connection():
-    return mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="Door#@mirror555",
-        database="scrapy_db",
-        charset="utf8mb4"
-    )
+
 
 # Function to clean text data
 def clean_text(text):
@@ -75,3 +68,4 @@ def get_data():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
