@@ -4,12 +4,7 @@ import requests
 class PhishingDetectionPipeline:
     def __init__(self):
         self.conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
-            password="Door#@mirror555",
-            database="scrapy_db",
-            charset='utf8mb4',
-            autocommit=True
+            
         )
         self.cursor = self.conn.cursor()
         self.cursor.execute("""
@@ -52,3 +47,4 @@ class PhishingDetectionPipeline:
     def close_spider(self, spider):
         self.cursor.close()
         self.conn.close()
+
